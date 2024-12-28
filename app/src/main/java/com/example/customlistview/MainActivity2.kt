@@ -1,6 +1,7 @@
 package com.example.customlistview
 
 import android.annotation.SuppressLint
+import android.app.Person
 import android.content.ClipData.Item
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,6 +12,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.AdapterView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -23,9 +25,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import java.io.IOException
 
-class MainActivity2 : AppCompatActivity() {
+class MainActivity2 : AppCompatActivity(),Removable,Updatable {
+
+    var product:Product? = null
 
     private var products:MutableList<Product> = mutableListOf()
+    var listAdapter:ListAdapter? = null
+    var item:Int? = null
+    var uri:Uri? = null
+    var check = true
 
     private lateinit var toolbarTB:androidx.appcompat.widget.Toolbar
 
@@ -50,13 +58,25 @@ class MainActivity2 : AppCompatActivity() {
         }
         buttonAddBTN.setOnClickListener {
             val image = imageViewIV.drawable
-            val product = Product(nameET.text.toString(),priceET.text.toString(),image)
-            products.add(product)
-            val listAdapter = ListAdapter(this,products)
+            uri = Uri.parse(image.toString())
+            product = Product(nameET.text.toString(),priceET.text.toString(),uri.toString())
+            products.add(product!!)
+            listAdapter = ListAdapter(this,products)
             listViewLV.adapter = listAdapter
-            listAdapter.notifyDataSetChanged()
+            listAdapter?.notifyDataSetChanged()
             clear()
+            listAdapter?.notifyDataSetChanged()
         }
+        listViewLV.onItemClickListener =
+            AdapterView.OnItemClickListener{parent,view,position,id ->
+                val product = listAdapter!!.getItem(position)
+                item = position
+                val dialog = MyAlertDialog()
+                val args = Bundle()
+                args.putSerializable("product",product)
+                dialog.arguments = args
+                dialog.show(supportFragmentManager,"custom")
+            }
     }
 
     private fun clear() {
@@ -94,6 +114,19 @@ class MainActivity2 : AppCompatActivity() {
             R.id.exitItem -> finish()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun remove(product: Product) {
+        listAdapter?.remove(product)
+    }
+
+    override fun update(product: Product) {
+        val intent = Intent(this,DetailsActivity::class.java)
+        intent.putExtra("product",product)
+        intent.putExtra("products",this.products as ArrayList<Product>)
+        intent.putExtra("position",item)
+        intent.putExtra("check", check)
+        startActivity(intent)
     }
 }
 

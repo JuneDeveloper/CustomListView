@@ -5,7 +5,7 @@
     <item
         android:id="@+id/exitItem"
         android:title="@string/exit"
-        android:icon="@drawable/baseline_archive_24"
+        android:icon="@drawable/exit"
         app:showAsAction="always"/>
 
 </menu>
