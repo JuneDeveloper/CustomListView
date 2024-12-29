@@ -47,10 +47,16 @@
             android:id="@+id/priceET"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:textSize="16sp"
             android:inputType="number"
             android:hint="@string/price"/>
+
+        <EditText
+            android:id="@+id/descriptionET"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/Description"
+            android:textSize="16sp"/>
 
         </LinearLayout>
 

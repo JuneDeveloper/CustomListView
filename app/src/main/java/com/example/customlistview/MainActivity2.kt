@@ -12,19 +12,20 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ListView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import java.io.IOException
 
 class MainActivity2 : AppCompatActivity(),Removable,Updatable {
 
-    var product:Product? = null
-
+    private var product:Product? = null
     private var products:MutableList<Product> = mutableListOf()
-    var listAdapter:ListAdapter? = null
-    var item:Int? = null
-    var uri:Uri? = null
-    var check = true
+    private var listAdapter:ListAdapter? = null
+    private var item:Int? = null
+    private var check = true
+    private val CALLERY_REQUEST = 1
+    private var selectedImage:Uri? = null
 
     private lateinit var toolbarTB:androidx.appcompat.widget.Toolbar
 
@@ -33,6 +34,7 @@ class MainActivity2 : AppCompatActivity(),Removable,Updatable {
     private lateinit var priceET:EditText
     private lateinit var buttonAddBTN:Button
     private lateinit var listViewLV:ListView
+    private lateinit var descriptionET:EditText
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,35 +47,53 @@ class MainActivity2 : AppCompatActivity(),Removable,Updatable {
         identification()
 
         imageViewIV.setOnClickListener {
-            getImage.launch("image/*")
+            val photoPicker = Intent(Intent.ACTION_PICK)
+            photoPicker.type = "image/*"
+            startActivityForResult(photoPicker,CALLERY_REQUEST)
         }
+
         buttonAddBTN.setOnClickListener {
-            val image = imageViewIV.drawable
-            uri = Uri.parse(image.toString())
-            product = Product(nameET.text.toString(),priceET.text.toString(),uri.toString())
+            val image = selectedImage
+            product = Product(
+                nameET.text.toString(),
+                priceET.text.toString(),
+                image.toString(),
+                descriptionET.text.toString())
             products.add(product!!)
             listAdapter = ListAdapter(this,products)
             listViewLV.adapter = listAdapter
             listAdapter?.notifyDataSetChanged()
             clear()
-            listAdapter?.notifyDataSetChanged()
+
         }
         listViewLV.onItemClickListener =
-            AdapterView.OnItemClickListener{parent,view,position,id ->
+            AdapterView.OnItemClickListener { parent, view, position, id ->
                 val product = listAdapter!!.getItem(position)
                 item = position
                 val dialog = MyAlertDialog()
                 val args = Bundle()
-                args.putSerializable("product",product)
+                args.putSerializable("product", product)
                 dialog.arguments = args
-                dialog.show(supportFragmentManager,"custom")
+                dialog.show(supportFragmentManager, "custom")
             }
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//        check = intent.extras?.getBoolean("newCheck") ?: true
+//        if(!check){
+//            products = intent.getSerializableExtra("list") as MutableList<Product>
+//            listAdapter = ListAdapter(this,products)
+//            check = true
+//        }
+//        listViewLV.adapter = listAdapter
+//    }
 
     private fun clear() {
         nameET.text.clear()
         priceET.text.clear()
         imageViewIV.setImageResource(R.drawable.baseline_add_24)
+        descriptionET.text.clear()
     }
 
     private fun identification() {
@@ -82,27 +102,32 @@ class MainActivity2 : AppCompatActivity(),Removable,Updatable {
         priceET = findViewById(R.id.priceET)
         buttonAddBTN = findViewById(R.id.buttonAddBTN)
         listViewLV = findViewById(R.id.listViewLV)
+        descriptionET = findViewById(R.id.descriptionET)
     }
 
-    private val getImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri != null) {
-            try {
-                val bitmap = contentResolver.openInputStream(uri)?.use { inputStream ->
-                    BitmapFactory.decodeStream(inputStream)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when(requestCode){
+            CALLERY_REQUEST -> {
+                if (resultCode == RESULT_OK){
+                    selectedImage = data?.data
+                    imageViewIV.setImageURI(selectedImage)
                 }
-                imageViewIV.setImageBitmap(bitmap)
-            } catch (e: IOException) {
-                e.printStackTrace()
             }
         }
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
         return true
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.exitItem -> finish()
+            R.id.exitItem -> {
+                finish()
+                Toast.makeText(this,"Программа завершена", Toast.LENGTH_SHORT).show()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -120,6 +145,8 @@ class MainActivity2 : AppCompatActivity(),Removable,Updatable {
         startActivity(intent)
     }
 }
+
+
 
 
 

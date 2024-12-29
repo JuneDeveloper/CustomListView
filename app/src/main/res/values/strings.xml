@@ -7,4 +7,6 @@
     <string name="add">Добавить</string>
     <string name="exit">Выход</string>
     <string name="Description">Описание продукта</string>
+    <string name="back">Возврат</string>
+    <string name="save">Сохранить</string>
 </resources>

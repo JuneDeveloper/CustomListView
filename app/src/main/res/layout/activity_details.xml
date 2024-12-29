@@ -26,7 +26,6 @@
         android:id="@+id/detailsNameET"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/nameProduct"
         android:textSize="30sp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"/>
@@ -36,7 +35,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:hint="@string/price"
         android:textSize="24sp"
         android:layout_marginTop="20dp"/>
 
